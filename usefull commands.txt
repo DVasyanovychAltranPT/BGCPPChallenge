@@ -1,11 +1,12 @@
 docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
 docker rmi $(docker images --filter “dangling=true” -q --no-trunc)
-docker build --tag hello
 1 removes <none>:<none>    1: docker system prune 
-2 dont worry about wanring 2: just informing user that files were marked as executable in windows folder
+2 enter folder of project  2: cd whatever
+3 build my image for app   3: docker build --tag xsd_parser:v1 .
+4 dont worry about wanring 4: just informing user that files were marked as executable in windows folder
 		SECURITY WARNING: 
 		You are building a Docker image from Windows against a non-Windows Docker host.
 		All files and directories added to build context will have '-rwxr-xr-x' permissions.
 		It is recommended to double check and reset permissions for sensitive files and directories.
-		
+5 run my newly build app   5: docker run xsd_parser:v1
 _CRT_SECURE_NO_WARNINGS to remove unsafe code warning in vs 2017

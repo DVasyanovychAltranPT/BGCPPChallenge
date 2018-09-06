@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 		//cin >> option;
 		string s;
 		getline (cin, s);
-		option = s.front();
+		option = s.at(0);
 		switch (option)
 		{
 		case '1':
