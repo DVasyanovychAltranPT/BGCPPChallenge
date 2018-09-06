@@ -8,14 +8,32 @@
 #include <vector>
 using namespace std;
 
+#pragma region Declarations
 
 string GIVENNAME;
 
-struct XSD_CONTENT {
-	string XSD_LINE;
-
+struct X_string {
+	string Line;
 };
-vector<XSD_CONTENT> file_content;
+struct X_int {
+	int inter;
+};
+struct X_bool {
+	bool Booler;
+};
+struct X_float {
+	float floater;
+};
+struct X_char {
+	char character;
+};
+
+vector<X_string> file_content;
+vector<X_string> my_containers;
+
+#pragma endregion
+
+
 int reader()
 {
 	const char* readfile = GIVENNAME.c_str();
@@ -27,32 +45,81 @@ int reader()
 	{
 		getline(infile, line); // Saves the line from file.
 		//cout << line << endl; 
-		file_content.push_back(XSD_CONTENT());
-		file_content[i].XSD_LINE = line;
-		cout << file_content[i].XSD_LINE;
-		cout << endl;
+		file_content.push_back(X_string());
+		file_content[i].Line = line;
+		//cout << file_content[i].XSD_LINE << endl; 
 		i++;
 	}
 	infile.close();
 	return 0;
 }
 
-int xmlgenerater()
+
+void add_to_containers(string container_name)
 {
-	reader();
+	size_t size = my_containers.size();
+	my_containers.push_back(X_string());
+	my_containers[size].Line = container_name;
+}
+vector<X_int> find_me(string this_thing, int from_this_line, int to_this_line)
+{
+	vector<X_int> found_in_this_lines;
 
-	printf("\n\n\t generating xml file, wait\n\n");
-
-	string i_start			= "<xsd:";
+	return found_in_this_lines;
+}
+int searcher() 
+{
+	string i_start			= "";
 	string i_schema			= "schema";
-	string i_complexType	= "complexType";
-	string i_element		= "element";
-	string i_sequence		= "sequence";
-	string i_name			= "name=\"";
-	string i_type			= "type=\"";	
+	string i_complexType	= "<xsd:complexType";
+	string i_element		= "<xsd:element";
+	string i_sequence		= "<xsd:sequence";
+	string i_name			= "name=";
+	string i_type			= "type=";	
 	string i_end			= "</xsd:";
 
 	string i_this			= " ";
+	string long_name		= " ";
+
+	int i				= 0;
+	std::size_t found	= 0;
+	std::size_t found_2 = 0;
+	std::size_t found_3 = 0;
+	int n_file_lines = file_content.size();
+	while(n_file_lines > i)
+	{
+		found = 0;
+		found_2 = 0;
+		found_3 = 0;
+		found = file_content[i].Line.find(i_complexType);
+		cout << "searching in " << file_content[i].Line << endl;
+		if (found != std::string::npos)
+		{//this line contains complexType, lets find its name
+			found_2 = file_content[i].Line.find(i_name);
+			if (found_2 != std::string::npos)
+			{
+				long_name = file_content[i].Line.substr(found_2+ i_name.size());
+				found_3 = long_name.find("\"");
+				if (found_3 != std::string::npos)
+				{
+					i_this = long_name.substr(0, found_3); 
+					add_to_containers(i_this);
+					//cout << my_containers[containers_n].Line << endl;
+				}
+			}
+		}
+		i++;
+	}
+	return 0;
+}
+
+
+int xmlgenerater()
+{
+	reader();
+	searcher();
+	printf("\n\n\t generating xml file, wait\n\n");
+
 	
 	/*
 	< ? xml version = "1.0" encoding = "utf-8" ? >
