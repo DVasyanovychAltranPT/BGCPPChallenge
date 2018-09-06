@@ -31,6 +31,16 @@ struct X_char {
 vector<X_string> file_content;
 vector<X_string> my_containers;
 
+string i_complexType = "<xsd:complexType";
+string i_complexType_end = "</xsd:complexType";
+string i_sequence = "<xsd:sequence";
+string i_sequence_end = "</xsd:sequence";
+string i_element = "<xsd:element";
+string i_name = "name=";
+string i_type = "type=";
+string delimiter = "\"";
+bool complexType_flag;
+bool sequence_flag;
 #pragma endregion
 
 
@@ -61,53 +71,133 @@ void add_to_containers(string container_name)
 	my_containers.push_back(X_string());
 	my_containers[size].Line = container_name;
 }
-vector<X_int> find_me(string this_thing, int from_this_line, int to_this_line)
+
+string find_my_name(string in_here, string this_thing)
 {
 	vector<X_int> found_in_this_lines;
-
-	return found_in_this_lines;
-}
-int searcher() 
-{
-	string i_start			= "";
-	string i_schema			= "schema";
-	string i_complexType	= "<xsd:complexType";
-	string i_element		= "<xsd:element";
-	string i_sequence		= "<xsd:sequence";
-	string i_name			= "name=";
-	string i_type			= "type=";	
-	string i_end			= "</xsd:";
-
-	string i_this			= " ";
-	string long_name		= " ";
-
-	int i				= 0;
-	std::size_t found	= 0;
-	std::size_t found_2 = 0;
-	std::size_t found_3 = 0;
-	int n_file_lines = file_content.size();
-	while(n_file_lines > i)
-	{
-		found = 0;
-		found_2 = 0;
-		found_3 = 0;
-		found = file_content[i].Line.find(i_complexType);
-		cout << "searching in " << file_content[i].Line << endl;
-		if (found != std::string::npos)
-		{//this line contains complexType, lets find its name
-			found_2 = file_content[i].Line.find(i_name);
-			if (found_2 != std::string::npos)
+	int size = i_name.size();
+	std::size_t f_contentType = 0;
+	std::size_t f_name = 0;
+	std::size_t the_name = 0;
+	string long_name = " ";
+	string name_is = " ";
+	f_contentType = in_here.find(this_thing);
+	if (f_contentType != std::string::npos)
+	{//this line contains this_thing, lets find the NAME
+		f_name = in_here.find(i_name);
+		if (f_name != std::string::npos)
+		{
+			long_name = in_here.substr(f_name + size + 1);
+			the_name = long_name.find(delimiter);
+			if (the_name != std::string::npos)
 			{
-				long_name = file_content[i].Line.substr(found_2+ i_name.size());
-				found_3 = long_name.find("\"");
-				if (found_3 != std::string::npos)
-				{
-					i_this = long_name.substr(0, found_3); 
-					add_to_containers(i_this);
-					//cout << my_containers[containers_n].Line << endl;
-				}
+				name_is = long_name.substr(0, the_name);
+				cout << "name:" << name_is << endl;
 			}
 		}
+	}
+	return name_is;
+}
+
+string find_my_type(string in_here, string this_thing)
+{
+	vector<X_int> found_in_this_lines;
+	int size = i_name.size();
+	std::size_t f_contentType = 0;
+	std::size_t f_type = 0;
+	std::size_t the_type = 0;
+	string long_type = " ";
+	string type_is = " ";
+	f_contentType = in_here.find(this_thing);
+	if (f_contentType != std::string::npos)
+	{//this line contains this_thing, lets find the type
+		f_type = in_here.find(i_type);
+		if (f_type != std::string::npos)
+		{
+			long_type = in_here.substr(f_type + size + 1);
+			the_type = long_type.find(delimiter);
+			if (the_type != std::string::npos)
+			{
+				type_is = long_type.substr(0, the_type);
+				cout << "type:" << type_is << endl;
+			}
+		}
+	}
+	return type_is;
+}
+
+bool find_complex(string in_here)
+{
+	std::size_t f_contentType = 0;
+	string name_is = " ";
+	f_contentType = in_here.find(i_complexType);
+	if (f_contentType != std::string::npos)
+	{
+		complexType_flag = true;
+		name_is = find_my_name(in_here, i_complexType);//find its name
+		add_to_containers(name_is);
+
+	}
+	f_contentType = in_here.find(i_complexType_end);
+	if (f_contentType != std::string::npos)
+	{
+		complexType_flag = false;
+	}
+
+	//cout << "sequence:" << complexType_flag << endl;
+	return complexType_flag;
+}
+
+bool find_sequence(string in_here)
+{
+	std::size_t f_contentType = 0;
+	std::size_t f_name = 0;
+	std::size_t f_result = 0;
+	string long_name = " ";
+	string name_is = " ";
+	f_contentType = in_here.find(i_sequence);
+	if (f_contentType != std::string::npos)
+	{
+		sequence_flag = true; 
+	}
+	f_contentType = in_here.find(i_sequence_end);
+	if (f_contentType != std::string::npos)
+	{
+		sequence_flag = false;
+	}
+
+	//cout << "sequence:" << sequence_flag << endl;
+	return sequence_flag;
+}
+
+int searcher() 
+{
+	int i = 0;
+	int n_file_lines = file_content.size();
+	complexType_flag = false;
+	while(n_file_lines > i)
+	{
+		if (complexType_flag)
+		{
+			if (sequence_flag)
+			{
+				//search elements
+				cout << find_my_name(file_content[i].Line, i_element);
+				cout << find_my_type(file_content[i].Line, i_element);
+				find_sequence(file_content[i].Line);// find sequence
+			}
+			else
+			{
+				find_sequence(file_content[i].Line);// find sequence
+			}
+			find_complex(file_content[i].Line);// find if complextype
+		}
+		else
+		{
+			find_complex(file_content[i].Line);// find if complextype
+			cout << find_my_name(file_content[i].Line, i_complexType);//find its name
+		}
+		//cout << "searching in " << file_content[i].Line << endl;
 		i++;
 	}
 	return 0;
@@ -116,6 +206,8 @@ int searcher()
 
 int xmlgenerater()
 {
+	complexType_flag = false;
+	sequence_flag = false;
 	reader();
 	searcher();
 	printf("\n\n\t generating xml file, wait\n\n");
