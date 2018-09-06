@@ -113,7 +113,10 @@ int main(int argc, char* argv[])
 		printf("\n1 - XML generation");
 		printf("\n2 - JSON export");
 		printf("\n0 -  to exit \n");
-		cin >> option;
+		//cin >> option;
+		string s;
+		getline (cin, s);
+		option = s.front();
 		switch (option)
 		{
 		case '1':
