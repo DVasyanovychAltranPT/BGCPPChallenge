@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ctime>
+#include <sstream>
 using namespace std;
 
 #pragma region Declarations
@@ -35,6 +37,8 @@ string delimiter = "\"";
 bool complexType_flag;
 bool sequence_flag;
 ofstream myFile;
+static const char alphanum[] = "0123456789" "!@#$%^&*" "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz";
+int stringLength;
 #pragma endregion
 
 
@@ -42,7 +46,7 @@ void add_to_containers(string line)
 {
 	File_Size = file_content.size();
 	file_content.push_back(X_string());
-	file_content[File_Size].Line = line;
+	file_content[static_cast<int>(File_Size)].Line = line;
 }
 
 int reader()
@@ -66,34 +70,39 @@ int reader()
  
 string random(string type)
 {
+	std::ostringstream sss;
+	long num = clock();
+	sss << num;
 	string value = " ";
 	if (type == "xsd:string")
 	{
-		value = "I_am_string";
+		value = alphanum[clock() % stringLength] + alphanum[clock() % stringLength];
 	}
 	if (type == "xsd:int")
 	{
-		value = "I_am_int";
+		value = sss.str();
 	}
 	if (type == "xsd:bool")
 	{
-		value = "I_am_bool";
+		sss <<  static_cast<bool>((clock() % 4) / 2);
+		value = sss.str();
 	}
 	if (type == "xsd:float")
 	{
-		value = "I_am_float";
+		sss <<  static_cast <float> (clock()) / static_cast <float> (RAND_MAX);
+		value = sss.str();
 	}
 	if (type == "xsd:double")
 	{
-		value = "I_am_double";
+		sss << static_cast <double> (clock()) / static_cast <double> (RAND_MAX);
+		value = sss.str();
 	}
 	return value;
 }
 
-
 void populate_container(int position, string name, string type, string element)
 { 
-	if (position <File_Size)
+	if (position < static_cast<int>(File_Size))
 	{
 		file_content[position].Name = name;
 		file_content[position].VType = type;
@@ -109,13 +118,14 @@ void populate_container(int position, string name, string type, string element)
 		{
 			file_content[position].Declaration = false;
 		}
-
+		/*
 		cout << position << " " 
 			<< file_content[position].Declaration << "-"
 			<< file_content[position].Element << "-"
 			<< file_content[position].Name  << "-"
 			<< file_content[position].VType << "-"
 			<< file_content[position].Value << " "<< endl;
+			*/
 	}
 	else
 	{
@@ -252,7 +262,7 @@ int searcher()
 {
 	int i = 0;
 	complexType_flag = false;
-	while(File_Size > i)
+	while(static_cast<int>(File_Size) > i)
 	{
 		find_complex(file_content[i].Line,i);// find if complextype
 		find_sequence(file_content[i].Line,i);// find sequence
@@ -269,7 +279,7 @@ int create_element(string element_type, string element_name)
 	bool sequence_type_flag = false;
 	string complex_type_found = " ";
 	string sequence_type_found = " ";
-	for (int i = 0; i < File_Size; i++)
+	for (int i = 0; i < static_cast<int>(File_Size); i++)
 	{
 		if (file_content[i].Element == i_complexType_end)
 		{
@@ -313,8 +323,8 @@ int create_element(string element_type, string element_name)
 int generater()
 {
 	myFile.open("new.xml");
-	myFile << "<" << "? xml version = \"1.0\" encoding = \"utf - 8\" ?" << ">" << endl;
-	for (int i = 0; i < File_Size; i++)
+	myFile << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
+	for (int i = 0; i < static_cast<int>(File_Size); i++)
 	{
 		if(!file_content[i].Declaration && file_content[i].Element == i_element)
 		{
@@ -327,6 +337,7 @@ int generater()
 }
 int xmlgenerater()
 {
+	stringLength = sizeof(alphanum) - 1;
 	clear_history();
 	complexType_flag = false;
 	sequence_flag = false;
@@ -338,14 +349,6 @@ int xmlgenerater()
 	printf("\n\n\t generating xml file, wait\n\n");
 
 	generater();
-	
-	/*
-	< ? xml version = "1.0" encoding = "utf-8" ? >
-	<a xmlns = "http://example.org/types" xsi : schemaLocation = "http://example.org/types schema.xsd" xmlns : xsi = "http://www.w3.org/2001/XMLSchema-instance">
-	<stringMember>string< / stringMember>
-	<intMember>5348< / intMember>
-	< / a>
-	*/
 	return 1;
 }
 int jsonexporter()
@@ -358,6 +361,7 @@ int jsonexporter()
 int menu_for_file_selection() 
 {
 	char yes_no;
+		string s;
 	printf("\nIS XSD xsd.xsd ?\n");
 
 	cin >> yes_no;
@@ -365,7 +369,9 @@ int menu_for_file_selection()
 	{
 	case 'n':
 		printf("\nINSERT NAME OF XSD \n");
-		cin >> GIVENNAME;
+		//cin >> GIVENNAME;
+		getline(cin, s);
+		GIVENNAME = s;
 		break;
 	default:
 		GIVENNAME = "xsd.xsd";
