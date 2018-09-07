@@ -6,4 +6,6 @@
        </xsd:sequence>
   </xsd:complexType>  
   <xsd:element name="a" type="bit:XType"/>
+  <xsd:element name="b" type="bit:XType"/>
+  <xsd:element name="c" type="bit:XType"/>
 </xsd:schema>

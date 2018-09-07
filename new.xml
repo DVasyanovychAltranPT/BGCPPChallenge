@@ -1,6 +1,13 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<MyApp value="5" name="me" />
-
-
-
-
+<? xml version = "1.0" encoding = "utf - 8" ?>
+<a>
+<stringMember>I_am_string</stringMember>
+<intMember>I_am_int</intMember>
+</a>
+<b>
+<stringMember>I_am_string</stringMember>
+<intMember>I_am_int</intMember>
+</b>
+<c>
+<stringMember>I_am_string</stringMember>
+<intMember>I_am_int</intMember>
+</c>

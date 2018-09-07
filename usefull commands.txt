@@ -10,3 +10,14 @@ docker rmi $(docker images --filter “dangling=true” -q --no-trunc)
 		It is recommended to double check and reset permissions for sensitive files and directories.
 5 run my newly build app   5: docker run xsd_parser:v1
 _CRT_SECURE_NO_WARNINGS to remove unsafe code warning in vs 2017
+
+
+Nabin awesome functions:
+1 cd to whatever 1:
+2 docker images 2:
+3 docker run -d -t 3d46d23e3cde /bin/bash 3:
+4 docker ps 4:
+5 docker exec -it dazzling_goldstine /bin/bash 5:
+6 g++ xml_test.cpp -o xml_test 6:
+7 ./xml_test 7:
+
