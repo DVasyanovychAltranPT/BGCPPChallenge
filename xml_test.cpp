@@ -14,22 +14,15 @@ string GIVENNAME;
 
 struct X_string {
 	string Line;
-};
-struct X_int {
-	int inter;
-};
-struct X_bool {
-	bool Booler;
-};
-struct X_float {
-	float floater;
-};
-struct X_char {
-	char character;
+	bool Declaration;
+	string Element;
+	string Name;
+	string VType;
+	string Value;
 };
 
 vector<X_string> file_content;
-vector<X_string> my_containers;
+size_t File_Size = 0;
 
 string i_complexType = "<xsd:complexType";
 string i_complexType_end = "</xsd:complexType";
@@ -41,8 +34,16 @@ string i_type = "type=";
 string delimiter = "\"";
 bool complexType_flag;
 bool sequence_flag;
+ofstream myFile;
 #pragma endregion
 
+
+void add_to_containers(string line)
+{
+	File_Size = file_content.size();
+	file_content.push_back(X_string());
+	file_content[File_Size].Line = line;
+}
 
 int reader()
 {
@@ -55,26 +56,89 @@ int reader()
 	{
 		getline(infile, line); // Saves the line from file.
 		//cout << line << endl; 
-		file_content.push_back(X_string());
-		file_content[i].Line = line;
+		add_to_containers(line);
 		//cout << file_content[i].XSD_LINE << endl; 
 		i++;
 	}
 	infile.close();
 	return 0;
 }
-
-
-void add_to_containers(string container_name)
+ 
+string random(string type)
 {
-	size_t size = my_containers.size();
-	my_containers.push_back(X_string());
-	my_containers[size].Line = container_name;
+	string value = " ";
+	if (type == "xsd:string")
+	{
+		value = "I_am_string";
+	}
+	if (type == "xsd:int")
+	{
+		value = "I_am_int";
+	}
+	if (type == "xsd:bool")
+	{
+		value = "I_am_bool";
+	}
+	if (type == "xsd:float")
+	{
+		value = "I_am_float";
+	}
+	if (type == "xsd:double")
+	{
+		value = "I_am_double";
+	}
+	return value;
 }
 
+
+void populate_container(int position, string name, string type, string element)
+{ 
+	if (position <File_Size)
+	{
+		file_content[position].Name = name;
+		file_content[position].VType = type;
+		file_content[position].Element = element;
+
+		file_content[position].Value = random(type);
+
+		if (complexType_flag && sequence_flag)
+		{
+			file_content[position].Declaration = true;
+		}
+		else
+		{
+			file_content[position].Declaration = false;
+		}
+
+		cout << position << " " 
+			<< file_content[position].Declaration << "-"
+			<< file_content[position].Element << "-"
+			<< file_content[position].Name  << "-"
+			<< file_content[position].VType << "-"
+			<< file_content[position].Value << " "<< endl;
+	}
+	else
+	{
+		cout << "invalid insert to position:" << position << endl;
+	}
+}
+
+void clear_history()
+{
+	file_content.clear();
+}
+
+string find_(string in_here, string this_thing)
+{
+	std::size_t pos = 0;
+	string found_this = " ";
+	pos = in_here.find(this_thing);
+	if (pos != std::string::npos)
+		found_this = in_here.substr(pos);
+	return found_this;
+}
 string find_my_name(string in_here, string this_thing)
 {
-	vector<X_int> found_in_this_lines;
 	int size = i_name.size();
 	std::size_t f_contentType = 0;
 	std::size_t f_name = 0;
@@ -92,7 +156,7 @@ string find_my_name(string in_here, string this_thing)
 			if (the_name != std::string::npos)
 			{
 				name_is = long_name.substr(0, the_name);
-				cout << "name:" << name_is << endl;
+				//cout << "name:" << name_is << endl;
 			}
 		}
 	}
@@ -101,7 +165,6 @@ string find_my_name(string in_here, string this_thing)
 
 string find_my_type(string in_here, string this_thing)
 {
-	vector<X_int> found_in_this_lines;
 	int size = i_name.size();
 	std::size_t f_contentType = 0;
 	std::size_t f_type = 0;
@@ -119,14 +182,14 @@ string find_my_type(string in_here, string this_thing)
 			if (the_type != std::string::npos)
 			{
 				type_is = long_type.substr(0, the_type);
-				cout << "type:" << type_is << endl;
+				//cout << "type:" << type_is << endl;
 			}
 		}
 	}
 	return type_is;
 }
 
-bool find_complex(string in_here)
+bool find_complex(string in_here, int this_line)
 {
 	std::size_t f_contentType = 0;
 	string name_is = " ";
@@ -135,37 +198,52 @@ bool find_complex(string in_here)
 	{
 		complexType_flag = true;
 		name_is = find_my_name(in_here, i_complexType);//find its name
-		add_to_containers(name_is);
-
+		//cout << name_is << endl;
+		populate_container(this_line, name_is, i_complexType, i_complexType);
 	}
 	f_contentType = in_here.find(i_complexType_end);
 	if (f_contentType != std::string::npos)
 	{
 		complexType_flag = false;
+		populate_container(this_line, i_complexType_end, i_complexType_end, i_complexType_end);
 	}
 
 	//cout << "sequence:" << complexType_flag << endl;
 	return complexType_flag;
 }
 
-bool find_sequence(string in_here)
+bool find_sequence(string in_here, int this_line)
 {
 	std::size_t f_contentType = 0;
-	std::size_t f_name = 0;
-	std::size_t f_result = 0;
-	string long_name = " ";
-	string name_is = " ";
 	f_contentType = in_here.find(i_sequence);
 	if (f_contentType != std::string::npos)
 	{
-		sequence_flag = true; 
+		sequence_flag = true;
+		populate_container(this_line, i_sequence, i_sequence, i_sequence);
 	}
 	f_contentType = in_here.find(i_sequence_end);
 	if (f_contentType != std::string::npos)
 	{
 		sequence_flag = false;
+		populate_container(this_line, i_sequence_end, i_sequence_end, i_sequence_end);
 	}
 
+	//cout << "sequence:" << sequence_flag << endl;
+	return sequence_flag;
+}
+
+bool find_element(string in_here, int this_line)
+{
+	std::size_t f_contentType = 0;
+	string name_is = " ";
+	string type_is = " ";
+	f_contentType = in_here.find(i_element);
+	if (f_contentType != std::string::npos)
+	{
+		name_is = find_my_name(in_here, i_element);
+		type_is = find_my_type(in_here, i_element);
+		populate_container(this_line, name_is, type_is, i_element);
+	}
 	//cout << "sequence:" << sequence_flag << endl;
 	return sequence_flag;
 }
@@ -173,45 +251,93 @@ bool find_sequence(string in_here)
 int searcher() 
 {
 	int i = 0;
-	int n_file_lines = file_content.size();
 	complexType_flag = false;
-	while(n_file_lines > i)
+	while(File_Size > i)
 	{
-		if (complexType_flag)
-		{
-			if (sequence_flag)
-			{
-				//search elements
-				cout << find_my_name(file_content[i].Line, i_element);
-				cout << find_my_type(file_content[i].Line, i_element);
-				find_sequence(file_content[i].Line);// find sequence
-			}
-			else
-			{
-				find_sequence(file_content[i].Line);// find sequence
-			}
-			find_complex(file_content[i].Line);// find if complextype
-		}
-		else
-		{
-			find_complex(file_content[i].Line);// find if complextype
-			cout << find_my_name(file_content[i].Line, i_complexType);//find its name
-		}
-		//cout << "searching in " << file_content[i].Line << endl;
+		find_complex(file_content[i].Line,i);// find if complextype
+		find_sequence(file_content[i].Line,i);// find sequence
+		find_element(file_content[i].Line,i);// find sequence
 		i++;
 	}
 	return 0;
 }
 
+int create_element(string element_type, string element_name)
+{
 
+	bool complex_type_flag = false;
+	bool sequence_type_flag = false;
+	string complex_type_found = " ";
+	string sequence_type_found = " ";
+	for (int i = 0; i < File_Size; i++)
+	{
+		if (file_content[i].Element == i_complexType_end)
+		{
+			complex_type_flag = false;
+			myFile << "</" << element_name << ">" << endl;
+		}
+		else if (file_content[i].Element == i_complexType)
+		{
+			complex_type_found = find_(element_type, file_content[i].Name);
+			if (complex_type_found != " ")
+			{
+				complex_type_flag = true;
+				myFile << "<" << element_name << ">" << endl;
+
+			}
+		}
+		else if (complex_type_flag)
+		{ 
+			if (file_content[i].Element == i_sequence_end)
+			{
+				sequence_type_flag = false;
+			}
+			else if (file_content[i].Element == i_sequence)
+			{
+				sequence_type_flag = true;
+			}
+
+			else if (sequence_type_flag)
+			{
+				myFile << "<" << file_content[i].Name << ">"
+					<< file_content[i].Value
+					<< "</" << file_content[i].Name << ">" << endl;
+			}
+		} 
+	}
+
+	return 0;
+}
+
+
+int generater()
+{
+	myFile.open("new.xml");
+	myFile << "<" << "? xml version = \"1.0\" encoding = \"utf - 8\" ?" << ">" << endl;
+	for (int i = 0; i < File_Size; i++)
+	{
+		if(!file_content[i].Declaration && file_content[i].Element == i_element)
+		{
+			create_element(file_content[i].VType, file_content[i].Name);
+		}
+
+	}
+	myFile.close();
+	return 0;
+}
 int xmlgenerater()
 {
+	clear_history();
 	complexType_flag = false;
 	sequence_flag = false;
+	//printf("\n\n\t reading xsd file, wait");
 	reader();
+	//printf(".");
 	searcher();
+	//printf("..\n\n");
 	printf("\n\n\t generating xml file, wait\n\n");
 
+	generater();
 	
 	/*
 	< ? xml version = "1.0" encoding = "utf-8" ? >
