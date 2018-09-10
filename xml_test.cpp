@@ -374,7 +374,7 @@ int create_element_json(string element_type, string element_name)
 		if (file_content[i].Element == i_complexType_end)
 		{
 			complex_type_flag = false;
-			myFile << "}" << endl;
+			myFile << endl << "}" << endl;
 		}
 		else if (file_content[i].Element == i_complexType)
 		{
@@ -428,7 +428,7 @@ int generater_json()
 
 	}
 
-	myFile << endl << "}" << endl;
+	myFile << "}" << endl;
 	myFile.close();
 	return 0;
 }
