@@ -1,5 +1,5 @@
     FROM gcc:5.5
     COPY . /BGCPPChallenge
     WORKDIR /BGCPPChallenge
-    RUN g++ -o BGCPPChallenge xml_test.cpp
+    RUN g++ -o BGCPPChallenge bggppchallenge.cpp
     CMD ["./BGCPPChallenge"]
