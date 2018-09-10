@@ -55,11 +55,16 @@ int reader()
 	string line;
 	ifstream infile;
 	infile.open(readfile);
+	if (!infile.is_open())
+	{
+		printf("please provide XSD file");
+		return -1;
+	}
 	int i = 0;
 	while (!infile.eof()) // To get all the lines from file one by one.
 	{
 		getline(infile, line); // Saves the line from file.
-		//cout << line << endl; 
+							   //cout << line << endl; 
 		add_to_containers(line);
 		//cout << file_content[i].XSD_LINE << endl; 
 		i++;
@@ -67,14 +72,14 @@ int reader()
 	infile.close();
 	return 0;
 }
- 
+
 string random(string type)
 {
 	std::ostringstream sss;
 	std::string random_string = "";
 	long num = clock();
 	int sizi = num % 9;
-	if (sizi <2 )
+	if (sizi <2)
 	{
 		sizi = 2;
 	}
@@ -82,7 +87,7 @@ string random(string type)
 	string value = " ";
 	if (type == "xsd:string")
 	{
-		for (int i = 0; i < sizi; i++) 
+		for (int i = 0; i < sizi; i++)
 		{
 			random_string.push_back((alphanum[(num*i) % stringLength]));
 		}
@@ -94,12 +99,12 @@ string random(string type)
 	}
 	if (type == "xsd:bool")
 	{
-		sss <<  static_cast<bool>((num % 4) / 2);
+		sss << static_cast<bool>((num % 4) / 2);
 		value = sss.str();
 	}
 	if (type == "xsd:float")
 	{
-		sss <<  static_cast <float> (num) / static_cast <float> (RAND_MAX);
+		sss << static_cast <float> (num) / static_cast <float> (RAND_MAX);
 		value = sss.str();
 	}
 	if (type == "xsd:double")
@@ -111,7 +116,7 @@ string random(string type)
 }
 
 void populate_container(int position, string name, string type, string element)
-{ 
+{
 	if (position < static_cast<int>(File_Size))
 	{
 		file_content[position].Name = name;
@@ -129,13 +134,13 @@ void populate_container(int position, string name, string type, string element)
 			file_content[position].Declaration = false;
 		}
 		/*
-		cout << position << " " 
-			<< file_content[position].Declaration << "-"
-			<< file_content[position].Element << "-"
-			<< file_content[position].Name  << "-"
-			<< file_content[position].VType << "-"
-			<< file_content[position].Value << " "<< endl;
-			*/
+		cout << position << " "
+		<< file_content[position].Declaration << "-"
+		<< file_content[position].Element << "-"
+		<< file_content[position].Name  << "-"
+		<< file_content[position].VType << "-"
+		<< file_content[position].Value << " "<< endl;
+		*/
 	}
 	else
 	{
@@ -218,7 +223,7 @@ bool find_complex(string in_here, int this_line)
 	{
 		complexType_flag = true;
 		name_is = find_my_name(in_here, i_complexType);//find its name
-		//cout << name_is << endl;
+													   //cout << name_is << endl;
 		populate_container(this_line, name_is, i_complexType, i_complexType);
 	}
 	f_contentType = in_here.find(i_complexType_end);
@@ -268,15 +273,15 @@ bool find_element(string in_here, int this_line)
 	return sequence_flag;
 }
 
-int searcher() 
+int searcher()
 {
 	int i = 0;
 	complexType_flag = false;
-	while(static_cast<int>(File_Size) > i)
+	while (static_cast<int>(File_Size) > i)
 	{
-		find_complex(file_content[i].Line,i);// find if complextype
-		find_sequence(file_content[i].Line,i);// find sequence
-		find_element(file_content[i].Line,i);// find sequence
+		find_complex(file_content[i].Line, i);// find if complextype
+		find_sequence(file_content[i].Line, i);// find sequence
+		find_element(file_content[i].Line, i);// find sequence
 		i++;
 	}
 	return 0;
@@ -307,7 +312,7 @@ int create_element(string element_type, string element_name)
 			}
 		}
 		else if (complex_type_flag)
-		{ 
+		{
 			if (file_content[i].Element == i_sequence_end)
 			{
 				sequence_type_flag = false;
@@ -323,7 +328,7 @@ int create_element(string element_type, string element_name)
 					<< file_content[i].Value
 					<< "</" << file_content[i].Name << ">" << endl;
 			}
-		} 
+		}
 	}
 
 	return 0;
@@ -335,7 +340,7 @@ int generater()
 	myFile << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
 	for (int i = 0; i < static_cast<int>(File_Size); i++)
 	{
-		if(!file_content[i].Declaration && file_content[i].Element == i_element)
+		if (!file_content[i].Declaration && file_content[i].Element == i_element)
 		{
 			create_element(file_content[i].VType, file_content[i].Name);
 		}
@@ -351,7 +356,10 @@ int xmlgenerater()
 	complexType_flag = false;
 	sequence_flag = false;
 	//printf("\n\n\t reading xsd file, wait");
-	reader();
+	if (reader() == -1)
+	{
+		return -1;
+	}
 	//printf(".");
 	searcher();
 	//printf("..\n\n");
@@ -439,13 +447,15 @@ int jsonexporter()
 	return 1;
 }
 
-int menu_for_file_selection() 
+int menu_for_file_selection()
 {
 	char yes_no;
-		string s;
+	string s;
 	printf("\nIS XSD xsd.xsd ?\n");
 
-	cin >> yes_no;
+	//cin >> yes_no;
+	getline(cin, s);
+	yes_no = s.at(0);
 	switch (yes_no)
 	{
 	case 'n':
@@ -487,7 +497,7 @@ int main(int argc, char* argv[])
 		printf("\n0 -  to exit \n");
 		//cin >> option;
 		string s;
-		getline (cin, s);
+		getline(cin, s);
 		option = s.at(0);
 		switch (option)
 		{

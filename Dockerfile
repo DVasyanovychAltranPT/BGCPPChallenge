@@ -3,3 +3,4 @@
     WORKDIR /BGCPPChallenge
     RUN g++ -o BGCPPChallenge bggppchallenge.cpp
     CMD ["./BGCPPChallenge"]
+	
