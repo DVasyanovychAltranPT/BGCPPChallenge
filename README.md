@@ -29,7 +29,7 @@ send following commands in docker console
 
 %locate respective image <dim4ik2008/bgcppchallenge>
 
-%docker run -d -it dim4ik2008/bgcppchallenge /bin/bash
+%docker run -d -t dim4ik2008/bgcppchallenge /bin/bash
 
 4$ docker ps
 
