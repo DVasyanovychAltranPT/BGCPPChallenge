@@ -9,13 +9,13 @@ this repository contains sample xsd.xsd filethis repository contains Dockerfile
 -------------------------------------------------------------------
 to sucesfully test the app you need to perform following steps
 
-Install docker and use only Linux images and containers within Docker
+%Install docker and use only Linux images and containers within Docker
 
-Install the docker image available in https://hub.docker.com/_/gcc/
+%Install the docker image available in https://hub.docker.com/_/gcc/
 
-open docker console 
+%open docker console 
 
-clone the repository to your local machine from <https://github.com/DVasyanovychAltranPT/BGCPPChallenge> from docker repository
+%clone the repository to your local machine from <https://github.com/DVasyanovychAltranPT/BGCPPChallenge> from docker repository
 
 0$ docker pull dim4ik2008/bgcppchallenge
 
