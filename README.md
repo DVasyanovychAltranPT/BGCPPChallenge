@@ -1,9 +1,17 @@
 hello read me steps 
+
 this program is done for a Altran c++ Challenge
+
+
 this repository contains c++ program in bggppchallenge.cpp file
+
+
 this repository contains sample xsd.xsd file
+
 this repository contains Dockerfile
--------------------------------------------------------------------
+
+------------------------------------------------------------------
+
 to sucesfully test the app you need to perform following steps
 Install docker and use only Linux images and containers within Docker
 Install the docker image available in https://hub.docker.com/_/gcc/
