@@ -71,12 +71,22 @@ int reader()
 string random(string type)
 {
 	std::ostringstream sss;
+	std::string random_string = "";
 	long num = clock();
+	int sizi = num % 9;
+	if (sizi <2 )
+	{
+		sizi = 2;
+	}
 	sss << num;
 	string value = " ";
 	if (type == "xsd:string")
 	{
-		value = alphanum[clock() % stringLength] + alphanum[clock() % stringLength];
+		for (int i = 0; i < sizi; i++) 
+		{
+			random_string.push_back((alphanum[(num*i) % stringLength]));
+		}
+		value = random_string;
 	}
 	if (type == "xsd:int")
 	{
@@ -84,17 +94,17 @@ string random(string type)
 	}
 	if (type == "xsd:bool")
 	{
-		sss <<  static_cast<bool>((clock() % 4) / 2);
+		sss <<  static_cast<bool>((num % 4) / 2);
 		value = sss.str();
 	}
 	if (type == "xsd:float")
 	{
-		sss <<  static_cast <float> (clock()) / static_cast <float> (RAND_MAX);
+		sss <<  static_cast <float> (num) / static_cast <float> (RAND_MAX);
 		value = sss.str();
 	}
 	if (type == "xsd:double")
 	{
-		sss << static_cast <double> (clock()) / static_cast <double> (RAND_MAX);
+		sss << static_cast <double> (num) / static_cast <double> (RAND_MAX);
 		value = sss.str();
 	}
 	return value;
@@ -319,7 +329,6 @@ int create_element(string element_type, string element_name)
 	return 0;
 }
 
-
 int generater()
 {
 	myFile.open("new.xml");
@@ -351,10 +360,82 @@ int xmlgenerater()
 	generater();
 	return 1;
 }
+
+int create_element_json(string element_type, string element_name)
+{
+
+	bool complex_type_flag = false;
+	bool sequence_type_flag = false;
+	string complex_type_found = " ";
+	string sequence_type_found = " ";
+	bool  first_time = true;
+	for (int i = 0; i < static_cast<int>(File_Size); i++)
+	{
+		if (file_content[i].Element == i_complexType_end)
+		{
+			complex_type_flag = false;
+			myFile << "}" << endl;
+		}
+		else if (file_content[i].Element == i_complexType)
+		{
+			complex_type_found = find_(element_type, file_content[i].Name);
+			if (complex_type_found != " ")
+			{
+				complex_type_flag = true;
+				myFile << "\"" << element_name << "\":{";
+				first_time = true;
+			}
+		}
+		else if (complex_type_flag)
+		{
+			if (file_content[i].Element == i_sequence_end)
+			{
+				sequence_type_flag = false;
+			}
+			else if (file_content[i].Element == i_sequence)
+			{
+				sequence_type_flag = true;
+			}
+			else if (sequence_type_flag && !first_time)
+			{
+				first_time = false;
+				myFile << "," << endl << "\"" << file_content[i].Name << "\":"
+					<< "\"" << file_content[i].Value << "\"";
+			}
+
+			else if (sequence_type_flag && first_time)
+			{
+				first_time = false;
+				myFile << endl << "\"" << file_content[i].Name << "\":"
+					<< "\"" << file_content[i].Value << "\"";
+			}
+		}
+	}
+
+	return 0;
+}
+
+int generater_json()
+{
+	myFile.open("new.json");
+	myFile << "{" << endl;
+	for (int i = 0; i < static_cast<int>(File_Size); i++)
+	{
+		if (!file_content[i].Declaration && file_content[i].Element == i_element)
+		{
+			create_element_json(file_content[i].VType, file_content[i].Name);
+		}
+
+	}
+
+	myFile << endl << "}" << endl;
+	myFile.close();
+	return 0;
+}
 int jsonexporter()
 {
 	printf("\n\n\t exporting Json file, wait\n\n");
-
+	generater_json();
 	return 1;
 }
 
