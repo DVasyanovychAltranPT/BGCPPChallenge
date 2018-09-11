@@ -29,17 +29,17 @@ send following commands in docker console
 
 %locate respective image <dim4ik2008/bgcppchallenge>
 
-%docker run -d -it gcc /bin/bash
+2$docker run -d -it gcc /bin/bash
 
 %locate "gcc"instance name "boring_khorana"
 
-4$ docker ps
+3$ docker ps
 
 %copy the project files bgcppchallenge.cpp and template.xsd
  
-$docker cp bgcppchallenge.cpp boring_khorana:/bgcppchallenge.cpp
+4.1$docker cp bgcppchallenge.cpp boring_khorana:/bgcppchallenge.cpp
 
-$docker cp template.xsd boring_khorana:/template.xsd
+4.2$docker cp template.xsd boring_khorana:/template.xsd
 
 %execute docket container 
 
