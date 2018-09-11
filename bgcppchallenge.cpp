@@ -378,7 +378,7 @@ int create_element(string element_type, string element_name)
 			{
 				complex_type_flag = true;
 				myFile << "<" << i_prefix_e << ":" << element_name << " "
-					<< i_xmlns << ":" << i_prefix_e <<"=\""<< i_prefix_link << "\">" << endl;
+					<< i_xmlns << i_prefix_e <<"=\""<< i_prefix_link << "\">" << endl;
 			}
 		}
 		else if (complex_type_flag)
@@ -479,7 +479,7 @@ int create_element_json(string element_type, string element_name)
 			{
 				complex_type_flag = true;
 				myFile << "\"" << i_prefix_e << ":" << element_name << "\":{" << endl;
-				myFile << "\"-" << i_xmlns << ":" << i_prefix_e << "\": \"" << i_prefix_link << "\"";
+				myFile << "\"-" << i_xmlns << i_prefix_e << "\": \"" << i_prefix_link << "\"";
 				first_time = true;
 			}
 		}
