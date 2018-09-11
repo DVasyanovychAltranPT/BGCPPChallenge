@@ -17,7 +17,7 @@ to sucesfully test the app you need to perform following steps
 
 %clone the repository to your local machine from <https://github.com/DVasyanovychAltranPT/BGCPPChallenge> from docker repository
 
-0$ docker pull dim4ik2008/bgcppchallenge
+0$ git clone git@github.com:DVasyanovychAltranPT/BGCPPChallenge.git
 
 %navigate to local folder where repository is stored <BGCPPChallenge>
 
@@ -29,13 +29,19 @@ send following commands in docker console
 
 %locate respective image <dim4ik2008/bgcppchallenge>
 
-%docker run -d -t dim4ik2008/bgcppchallenge /bin/bash
+%docker run -d -it gcc /bin/bash
+
+%locate "gcc"instance name "boring_khorana"
 
 4$ docker ps
 
-%locate "dim4ik2008/bgcppchallenge" name "boring_khorana"
+%copy the project files bgcppchallenge.cpp and template.xsd
+ 
+$docker cp bgcppchallenge.cpp boring_khorana:/bgcppchallenge.cpp
 
-%enter the comand in new console prompt from "BGCPPChallenge" container
+$docker cp template.xsd boring_khorana:/template.xsd
+
+%execute docket container 
 
 5$ docker exec -it boring_khorana /bin/bash
 
@@ -56,5 +62,9 @@ send following commands in docker console
 %you can exit docker container and image with "exit" command
 
 9$ exit 
-validate stuff here
-http://www.utilities-online.info/xsdvalidation/#.W5aZ-M7ATIU
+
+validate new.xml    
+http://www.utilities-online.info/xsdvalidation
+
+and new.json content      
+http://www.utilities-online.info/xmltojson
