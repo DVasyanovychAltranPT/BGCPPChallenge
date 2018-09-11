@@ -35,10 +35,12 @@ string i_complexType = "complexType";
 string i_complexType_start = "complexType";
 string i_complexType_end = "complexType";
 string i_schema = "schema";
+string i_schema_start = "schema";
 string i_sequence = "sequence";
 string i_sequence_start = "sequence";
 string i_sequence_end = "sequence";
 string i_element = "element";
+string i_element_start = "element";
 string i_name = "name=";
 string i_xmlns = "xmlns:";
 string i_type = "type=";
@@ -232,7 +234,7 @@ int find_prefix(string in_here, int this_line)
 	string prefix1_is = " ";
 	string prefix2_is = " ";
 	
-	pos_found = in_here.find(i_schema);
+	pos_found = in_here.find(i_schema_start);
 	if (pos_found != std::string::npos)
 	{
 		prefix1_is = find_(in_here, i_xmlns);//find 1 xmlns prefix 
@@ -277,7 +279,7 @@ int find_prefix(string in_here, int this_line)
 					i_prefix_link = i_prefix_link.substr(0, pos_found3);
 				}
 			}
-			populate_container(this_line, prefix1_is, prefix2_is, i_schema);
+			populate_container(this_line, prefix1_is, prefix2_is, i_schema_start);
 		}
 		
 	}
@@ -332,12 +334,12 @@ bool find_element(string in_here, int this_line)
 	std::size_t f_contentType = 0;
 	string name_is = " ";
 	string type_is = " ";
-	f_contentType = in_here.find(i_element);
+	f_contentType = in_here.find(i_element_start);
 	if (f_contentType != std::string::npos)
 	{
-		name_is = find_my_name(in_here, i_element);
-		type_is = find_my_type(in_here, i_element);
-		populate_container(this_line, name_is, type_is, i_element);
+		name_is = find_my_name(in_here, i_element_start);
+		type_is = find_my_type(in_here, i_element_start);
+		populate_container(this_line, name_is, type_is, i_element_start);
 	}
 	//cout << "sequence:" << sequence_flag << endl;
 	return sequence_flag;
@@ -414,10 +416,10 @@ int set_starting_types()
 	}
 	i_complexType_start = i_start + i_prefix + ":" + i_complexType;
 	i_complexType_end = i_end + i_prefix + ":" + i_complexType;
-	i_schema = i_start + i_prefix + ":" + i_schema;
+	i_schema_start = i_start + i_prefix + ":" + i_schema;
 	i_sequence_start = i_start + i_prefix + ":" + i_sequence;
 	i_sequence_end = i_end + i_prefix + ":"+ i_sequence;
-	i_element = i_start + i_prefix + ":" + i_element;
+	i_element_start = i_start + i_prefix + ":" + i_element;
 	return 0;
 }
 
@@ -427,7 +429,7 @@ int generater()
 	myFile << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
 	for (int i = 0; i < static_cast<int>(File_Size); i++)
 	{
-		if (!file_content[i].Declaration && file_content[i].Element == i_element)
+		if (!file_content[i].Declaration && file_content[i].Element == i_element_start)
 		{
 			create_element(file_content[i].VType, file_content[i].Name);
 		}
@@ -448,9 +450,9 @@ int xmlgenerater()
 		return -1;
 	}
 	set_starting_types();
-	//printf(".");
+	printf(".");
 	set_structure_variables();
-	//printf("..\n\n");
+	printf("..\n\n");
 	printf("\n\n\t generating xml file, wait\n\n");
 
 	generater();
@@ -479,7 +481,7 @@ int create_element_json(string element_type, string element_name)
 			{
 				complex_type_flag = true;
 				myFile << "\"" << i_prefix_e << ":" << element_name << "\":{" << endl;
-				myFile << "\"-" << i_xmlns << i_prefix_e << "\": \"" << i_prefix_link << "\"";
+				myFile << "\"-" << i_xmlns << i_prefix_e << "\": \"" << i_prefix_link << "\",";
 				first_time = true;
 			}
 		}
@@ -518,7 +520,7 @@ int generater_json()
 	myFile << "{" << endl;
 	for (int i = 0; i < static_cast<int>(File_Size); i++)
 	{
-		if (!file_content[i].Declaration && file_content[i].Element == i_element)
+		if (!file_content[i].Declaration && file_content[i].Element == i_element_start)
 		{
 			create_element_json(file_content[i].VType, file_content[i].Name);
 		}
@@ -540,7 +542,7 @@ int menu_for_file_selection()
 {
 	char yes_no;
 	string s;
-	printf("\nIS XSD xsd.xsd ?\n");
+	printf("\nIS XSD template.xsd ?\n");
 
 	//cin >> yes_no;
 	getline(cin, s);
@@ -554,7 +556,7 @@ int menu_for_file_selection()
 		GIVENNAME = s;
 		break;
 	default:
-		GIVENNAME = "xsd.xsd";
+		GIVENNAME = "template.xsd";
 		break;
 	}
 	return 0;
