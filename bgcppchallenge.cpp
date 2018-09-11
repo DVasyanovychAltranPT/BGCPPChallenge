@@ -26,12 +26,21 @@ struct X_string {
 vector<X_string> file_content;
 size_t File_Size = 0;
 
-string i_complexType = "<xsd:complexType";
-string i_complexType_end = "</xsd:complexType";
-string i_sequence = "<xsd:sequence";
-string i_sequence_end = "</xsd:sequence";
-string i_element = "<xsd:element";
+string i_prefix = "fake";
+string i_prefix_e = "fake";
+string i_prefix_link = "http://fake.fake/types";
+string i_end = "</";
+string i_start = "<";
+string i_complexType = "complexType";
+string i_complexType_start = "complexType";
+string i_complexType_end = "complexType";
+string i_schema = "schema";
+string i_sequence = "sequence";
+string i_sequence_start = "sequence";
+string i_sequence_end = "sequence";
+string i_element = "element";
 string i_name = "name=";
+string i_xmlns = "xmlns:";
 string i_type = "type=";
 string delimiter = "\"";
 bool complexType_flag;
@@ -187,7 +196,6 @@ string find_my_name(string in_here, string this_thing)
 	}
 	return name_is;
 }
-
 string find_my_type(string in_here, string this_thing)
 {
 	int size = i_name.size();
@@ -214,17 +222,79 @@ string find_my_type(string in_here, string this_thing)
 	return type_is;
 }
 
+
+int find_prefix(string in_here, int this_line)
+{
+	std::size_t pos_found = 0;
+	std::size_t pos_found1 = 0;
+	std::size_t pos_found2 = 0;
+	std::size_t pos_found3 = 0;
+	string prefix1_is = " ";
+	string prefix2_is = " ";
+	
+	pos_found = in_here.find(i_schema);
+	if (pos_found != std::string::npos)
+	{
+		prefix1_is = find_(in_here, i_xmlns);//find 1 xmlns prefix 
+		if (prefix1_is != " ")
+		{
+			pos_found1 = prefix1_is.find(" ");
+			if (pos_found1 != std::string::npos)
+			{
+				prefix2_is = prefix1_is.substr(pos_found1);// ignore first xmls
+				prefix1_is = prefix1_is.substr(0, pos_found1);
+			}
+			i_prefix = prefix1_is.substr(i_xmlns.size());
+			pos_found1 = i_prefix.find("=");
+			if (pos_found1 != std::string::npos)
+			{
+				i_prefix = i_prefix.substr(0, pos_found1);
+			}
+			prefix2_is = find_(prefix2_is, i_xmlns);//find 2 xmlns prefix
+			if (prefix2_is != " ")
+			{
+				pos_found2 = prefix2_is.find(" ");
+				if (pos_found2 != std::string::npos)
+				{
+					prefix2_is = prefix2_is.substr(0, pos_found2);
+				}
+				i_prefix_e = prefix2_is.substr(i_xmlns.size());
+				pos_found2 = i_prefix_e.find("=");
+				if (pos_found2 != std::string::npos)
+				{
+					i_prefix_e = i_prefix_e.substr(0, pos_found2);
+				}
+
+				i_prefix_link = prefix2_is.substr(i_xmlns.size());
+				pos_found3 = i_prefix_link.find("\"");
+				if (pos_found3 != std::string::npos)
+				{
+					i_prefix_link = i_prefix_link.substr(pos_found3+1);
+				}
+				pos_found3 = i_prefix_link.find("\"");
+				if (pos_found3 != std::string::npos)
+				{
+					i_prefix_link = i_prefix_link.substr(0, pos_found3);
+				}
+			}
+			populate_container(this_line, prefix1_is, prefix2_is, i_schema);
+		}
+		
+	}
+	return 0;
+}
+
 bool find_complex(string in_here, int this_line)
 {
 	std::size_t f_contentType = 0;
 	string name_is = " ";
-	f_contentType = in_here.find(i_complexType);
+	f_contentType = in_here.find(i_complexType_start);
 	if (f_contentType != std::string::npos)
 	{
 		complexType_flag = true;
-		name_is = find_my_name(in_here, i_complexType);//find its name
+		name_is = find_my_name(in_here, i_complexType_start);//find its name
 													   //cout << name_is << endl;
-		populate_container(this_line, name_is, i_complexType, i_complexType);
+		populate_container(this_line, name_is, i_complexType, i_complexType_start);
 	}
 	f_contentType = in_here.find(i_complexType_end);
 	if (f_contentType != std::string::npos)
@@ -240,17 +310,17 @@ bool find_complex(string in_here, int this_line)
 bool find_sequence(string in_here, int this_line)
 {
 	std::size_t f_contentType = 0;
-	f_contentType = in_here.find(i_sequence);
+	f_contentType = in_here.find(i_sequence_start);
 	if (f_contentType != std::string::npos)
 	{
 		sequence_flag = true;
-		populate_container(this_line, i_sequence, i_sequence, i_sequence);
+		populate_container(this_line, i_sequence_start, i_sequence, i_sequence_start);
 	}
 	f_contentType = in_here.find(i_sequence_end);
 	if (f_contentType != std::string::npos)
 	{
 		sequence_flag = false;
-		populate_container(this_line, i_sequence_end, i_sequence_end, i_sequence_end);
+		populate_container(this_line, i_sequence_end, i_sequence, i_sequence_end);
 	}
 
 	//cout << "sequence:" << sequence_flag << endl;
@@ -273,7 +343,7 @@ bool find_element(string in_here, int this_line)
 	return sequence_flag;
 }
 
-int searcher()
+int set_structure_variables()
 {
 	int i = 0;
 	complexType_flag = false;
@@ -299,16 +369,16 @@ int create_element(string element_type, string element_name)
 		if (file_content[i].Element == i_complexType_end)
 		{
 			complex_type_flag = false;
-			myFile << "</" << element_name << ">" << endl;
+			myFile << "</" << i_prefix_e << ":" << element_name << ">" << endl;
 		}
-		else if (file_content[i].Element == i_complexType)
+		else if (file_content[i].Element == i_complexType_start)
 		{
 			complex_type_found = find_(element_type, file_content[i].Name);
 			if (complex_type_found != " ")
 			{
 				complex_type_flag = true;
-				myFile << "<" << element_name << ">" << endl;
-
+				myFile << "<" << i_prefix_e << ":" << element_name << " "
+					<< i_xmlns << ":" << i_prefix_e <<"=\""<< i_prefix_link << "\">" << endl;
 			}
 		}
 		else if (complex_type_flag)
@@ -317,11 +387,10 @@ int create_element(string element_type, string element_name)
 			{
 				sequence_type_flag = false;
 			}
-			else if (file_content[i].Element == i_sequence)
+			else if (file_content[i].Element == i_sequence_start)
 			{
 				sequence_type_flag = true;
 			}
-
 			else if (sequence_type_flag)
 			{
 				myFile << "<" << file_content[i].Name << ">"
@@ -331,6 +400,24 @@ int create_element(string element_type, string element_name)
 		}
 	}
 
+	return 0;
+}
+
+int set_starting_types()
+{
+	int i = 0;
+	complexType_flag = false;
+	while (static_cast<int>(File_Size) > i)
+	{
+		find_prefix(file_content[i].Line, i);// find if prefix
+		i++;
+	}
+	i_complexType_start = i_start + i_prefix + ":" + i_complexType;
+	i_complexType_end = i_end + i_prefix + ":" + i_complexType;
+	i_schema = i_start + i_prefix + ":" + i_schema;
+	i_sequence_start = i_start + i_prefix + ":" + i_sequence;
+	i_sequence_end = i_end + i_prefix + ":"+ i_sequence;
+	i_element = i_start + i_prefix + ":" + i_element;
 	return 0;
 }
 
@@ -360,8 +447,9 @@ int xmlgenerater()
 	{
 		return -1;
 	}
+	set_starting_types();
 	//printf(".");
-	searcher();
+	set_structure_variables();
 	//printf("..\n\n");
 	printf("\n\n\t generating xml file, wait\n\n");
 
@@ -384,13 +472,14 @@ int create_element_json(string element_type, string element_name)
 			complex_type_flag = false;
 			myFile << endl << "}" << endl;
 		}
-		else if (file_content[i].Element == i_complexType)
+		else if (file_content[i].Element == i_complexType_start)
 		{
 			complex_type_found = find_(element_type, file_content[i].Name);
 			if (complex_type_found != " ")
 			{
 				complex_type_flag = true;
-				myFile << "\"" << element_name << "\":{";
+				myFile << "\"" << i_prefix_e << ":" << element_name << "\":{" << endl;
+				myFile << "\"-" << i_xmlns << ":" << i_prefix_e << "\": \"" << i_prefix_link << "\"";
 				first_time = true;
 			}
 		}
@@ -400,7 +489,7 @@ int create_element_json(string element_type, string element_name)
 			{
 				sequence_type_flag = false;
 			}
-			else if (file_content[i].Element == i_sequence)
+			else if (file_content[i].Element == i_sequence_start)
 			{
 				sequence_type_flag = true;
 			}
@@ -451,7 +540,7 @@ int menu_for_file_selection()
 {
 	char yes_no;
 	string s;
-	printf("\nIS XSD template.xsd ?\n");
+	printf("\nIS XSD xsd.xsd ?\n");
 
 	//cin >> yes_no;
 	getline(cin, s);
@@ -465,7 +554,7 @@ int menu_for_file_selection()
 		GIVENNAME = s;
 		break;
 	default:
-		GIVENNAME = "template.xsd";
+		GIVENNAME = "xsd.xsd";
 		break;
 	}
 	return 0;

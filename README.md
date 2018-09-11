@@ -56,3 +56,5 @@ send following commands in docker console
 %you can exit docker container and image with "exit" command
 
 9$ exit 
+validate stuff here
+http://www.utilities-online.info/xsdvalidation/#.W5aZ-M7ATIU
